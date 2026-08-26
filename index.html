@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kikyo Portfolio</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="is-loading">
+  <div class="intro-loader" id="introLoader" aria-hidden="true">
+    <canvas class="intro-galaxy-canvas" id="introGalaxyCanvas" aria-hidden="true"></canvas>
+    <div class="intro-galaxy-vignette" aria-hidden="true"></div>
+    <p class="intro-prompt-copy" id="introPrompt">Tap anywhere to begin</p>
+    <div class="light-rays intro-light-rays" id="introLightRays"></div>
+    <svg class="butterfly-loader" viewBox="0 0 220 160" role="img" aria-label="开场蝴蝶动画">
+      <path class="butterfly-trail" d="M110 82 C76 34 28 30 34 76 C39 116 75 116 110 84 C145 116 181 116 186 76 C192 30 144 34 110 82 Z" />
+      <path class="butterfly-wing wing-left upper" d="M108 80 C82 34 42 26 34 62 C28 91 57 105 108 84" />
+      <path class="butterfly-wing wing-left lower" d="M107 84 C75 102 61 132 88 138 C106 142 115 116 110 86" />
+      <path class="butterfly-wing wing-right upper" d="M112 80 C138 34 178 26 186 62 C192 91 163 105 112 84" />
+      <path class="butterfly-wing wing-right lower" d="M113 84 C145 102 159 132 132 138 C114 142 105 116 110 86" />
+      <path class="butterfly-body" d="M110 66 C115 77 115 92 110 105 C105 92 105 77 110 66 Z" />
+      <g class="butterfly-particles" id="butterflyParticles"></g>
+    </svg>
+    <div class="intro-progress" aria-hidden="true">
+      <span class="intro-brand">KIKYO'S PORTFOLIO</span>
+      <span class="intro-percent" id="introPercent">000</span>
+      <span class="intro-progress-track">
+        <span class="intro-progress-fill" id="introProgressFill"></span>
+      </span>
+    </div>
+    <div class="intro-blackout"></div>
+  </div>
+  <audio id="bgmAudio" src="./assets/bgm.mp3" preload="auto" type="audio/mpeg" loop></audio>
+
+  <header class="site-header" aria-label="能力方向标签">
+    <a class="brand" href="#top" aria-label="返回首页">Creative Design</a>
+    <nav class="nav-tags" aria-label="能力方向">
+      <span>UX/UI Design</span>
+      <span>AI Experience</span>
+      <span>AI Workflow</span>
+      <span>Visual Lab</span>
+      <span>Digital Human</span>
+    </nav>
+    <button class="bgm-toggle" id="bgmToggle" type="button" aria-label="暂停背景音乐" aria-pressed="false">
+      <span class="bgm-toggle-bars" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+  </header>
+
+  <main id="top">
+    <section class="scroll-hero" aria-label="个人定位开场">
+      <div class="hero-sticky">
+        <div class="side-rays hero-rays" aria-hidden="true"></div>
+        <img class="hero-frame" id="heroFrame" src="./assets/hero-frames/frame_0010.jpg" alt="" />
+        <img class="hero-id-badge-print" id="heroIdBadgePrint" src="./assets/kikyo-id-badge.png" alt="" />
+        <div class="hero-scrim"></div>
+        <div class="scroll-curtain" aria-hidden="true"></div>
+        <div class="grain"></div>
+
+        <div class="hero-stage">
+          <div class="hero-ledger">
+            <p class="hero-portfolio-word" aria-hidden="true">PORTFOLIO</p>
+            <div class="hero-ledger-details">
+              <p class="hero-ledger-year">2024-2026</p>
+              <div class="hero-ledger-row">
+                <h2 class="hero-ledger-title" aria-label="Design Works">
+                  <span>Design</span>
+                  <span>Works</span>
+                </h2>
+                <div class="hero-ledger-signature" aria-hidden="true">
+                  <span class="hero-nameplate-dot"></span>
+                  <span class="hero-nameplate-pill">KIKYO</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ability-layer" aria-label="能力视频切片">
+            <article class="ability-card ability-card-research">
+              <video src="./assets/ability-research-loop.mp4" autoplay muted loop playsinline preload="auto"></video>
+            </article>
+
+            <article class="ability-card ability-card-aigc">
+              <video src="./assets/ability-aigc-loop.mp4" autoplay muted loop playsinline preload="auto"></video>
+            </article>
+
+            <article class="ability-card ability-card-archive">
+              <video src="./assets/ability-archive-magic-cards.mp4" autoplay muted loop playsinline preload="auto"></video>
+            </article>
+          </div>
+
+          <div class="hero-copy is-hidden" id="heroCopy">
+            <div class="hero-left">
+              <span class="hero-index" id="heroIndex">01</span>
+              <h1 id="heroTitle">UI Design</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-section" id="profile" aria-label="个人档案">
+      <div class="section-label">PROFILE / ARCHIVE</div>
+      <div class="profile-head">
+        <h2>ABOUT<br />ME<sup>®</sup></h2>
+        <div class="profile-head-note">
+          <span>KIKYO</span>
+          <p>UX/UI Designer<br />Experience · Product · AI · Growth</p>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+        <div class="photo-lab" aria-label="照片轮播">
+          <button class="photo-card active" type="button" data-photo="0" aria-label="查看第一张照片">
+            <img class="card-photo" src="./assets/profile-photo-1.jpeg" alt="" />
+            <img class="card-frame" src="./assets/polaroid-frame-placeholder.jpg" alt="" />
+          </button>
+          <button class="photo-card" type="button" data-photo="1" aria-label="查看第二张照片">
+            <img class="card-photo" src="./assets/profile-photo-left.jpeg" alt="" />
+            <img class="card-frame" src="./assets/polaroid-frame-placeholder.jpg" alt="" />
+          </button>
+          <button class="photo-card" type="button" data-photo="2" aria-label="查看第三张照片">
+            <img class="card-photo card-photo-stage" src="./assets/profile-photo-5.jpeg" alt="" />
+            <img class="card-frame" src="./assets/polaroid-frame-placeholder.jpg" alt="" />
+          </button>
+          <div class="photo-controls" aria-label="轮播控制">
+            <button type="button" class="arrow" id="prevPhoto" aria-label="上一张">←</button>
+            <div class="dots" aria-hidden="true">
+              <span class="active"></span>
+              <span></span>
+              <span></span>
+            </div>
+            <button type="button" class="arrow" id="nextPhoto" aria-label="下一张">→</button>
+          </div>
+          <div class="photo-meta-grid" aria-label="教育背景和联系方式">
+            <div class="photo-meta-cell">
+              <span>教育背景:</span>
+              <strong class="profile-education-lines">
+                <span>硕士 · 视觉传达与数字媒体</span>
+                <span>UX/UI · AI 体验 · 数字产品表达</span>
+              </strong>
+            </div>
+            <div class="photo-meta-cell">
+              <span>联系方式:</span>
+              <strong class="profile-contact-lines">
+                <span>TEL: 17863997690</span>
+                <span>EMA: 1507405976@qq.com</span>
+              </strong>
+            </div>
+          </div>
+        </div>
+
+        <article class="profile-panel" id="experience">
+          <div class="profile-info-table" aria-label="个人资料">
+            <div class="profile-info-cell">
+              <span>ROLE:</span>
+              <strong>UX/UI Designer</strong>
+            </div>
+            <div class="profile-info-cell">
+              <span>STATUS:</span>
+              <strong>Open to Work</strong>
+            </div>
+            <div class="profile-info-cell profile-info-wide profile-summary-cell">
+              <span>PROFILE SUMMARY:</span>
+              <strong class="profile-summary-list">
+                <span>多段 UX/UI、AI 体验与 AIGC 设计经历。</span>
+                <span>目前参与近千万月活 C 端 AI 产品体验，累计推进 80+ 页面；也做过 AI 招聘 B 端复杂流程、AIGC 内容生产及 0-1 AI 互动项目。</span>
+                <span>具备成熟的 AI 工作流能力，能够将多个 AI 工具协同运用于调研、发散、方案推进与表达输出，形成稳定高效的设计方式。</span>
+              </strong>
+            </div>
+            <div class="profile-info-cell profile-info-wide profile-skills-cell">
+              <span>CORE SKILLS:</span>
+              <strong class="profile-direction-list">
+                <span>产品体验设计</span>
+                <span>用户路径设计</span>
+                <span>信息架构</span>
+                <span>复杂规则转译</span>
+                <span>AI 工作流</span>
+                <span>视觉系统搭建</span>
+              </strong>
+            </div>
+          </div>
+
+          <div class="profile-timeline-wrap">
+            <button class="profile-timeline-toggle" id="profileTimelineToggle" type="button" aria-controls="profileTimeline" aria-expanded="false">
+              <span class="profile-timeline-toggle-icon" aria-hidden="true"></span>
+              <span class="profile-timeline-toggle-copy">展开更多经历</span>
+              <span class="profile-timeline-toggle-less" aria-hidden="true">收起经历</span>
+            </button>
+            <ol class="profile-timeline is-collapsed" id="profileTimeline" aria-label="能力与项目经历">
+              <li>
+                <time>2025.06 - 至今</time>
+                <div>
+                  <strong>重流（上海）智能科技有限公司 / UX/UI 设计师</strong>
+                  <p>围绕核心产品 Emochi 的情感陪伴、角色认知与订阅转化体验，参与核心页面、活动承接与转化链路优化，支持近千万月活 C 端 AI 产品持续迭代。</p>
+                </div>
+              </li>
+              <li>
+                <time>2025.01 - 2025.04</time>
+                <div>
+                  <strong>快看漫画 / AIGC 内容设计实习生</strong>
+                  <p>围绕互动漫画内容生产中的角色生成效率、视觉一致性与素材复用管理问题，参与 AIGC 视觉支持与内容生产流程优化。</p>
+                </div>
+              </li>
+              <li>
+                <time>2025.11 - 2026.01</time>
+                <div>
+                  <strong>蓝领制造行业 AI 数智化招工平台 / UX/UI 设计师</strong>
+                  <p>项目包含蓝领员工端、推荐人端与驻场端，针对线下招工链路中信息录入依赖人工、岗位可信度判断成本高、报名到入职状态断裂等问题，重构从找活、建档到跟进入职的协同流程。</p>
+                </div>
+              </li>
+              <li data-timeline-extra>
+                <time>2026.06</time>
+                <div>
+                  <strong>DT RADIO | AI 互动体验项目 / 独立项目 | AI 体验设计</strong>
+                  <p>独立发起并上线面向陶喆同担的 AI 互动体验项目，围绕垂直人群语境、聊天陪伴、歌曲推荐与纪念票生成，完成从概念定义、体验设计到 Vibe Coding 落地的完整链路。</p>
+                </div>
+              </li>
+              <li data-timeline-extra>
+                <time>AI BUILD</time>
+                <div>
+                  <strong>独立 AI 搭建 / Vibe Coding 实践</strong>
+                  <p>持续搭建生长库、交互式个人作品集网站及多个轻量化 Vibe Coding 项目，系统探索信息组织、体验表达与 AI 协同工作流的落地路径。</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="works-section" id="works" aria-label="项目入口">
+      <div class="works-copy">
+        <p class="section-label">INDEX / ALL PROJECTS</p>
+        <h2>ALL PROJECTS</h2>
+      </div>
+      <p class="works-instruction">以 UX 系统、AI 产品与视觉工作流，组织从问题定义到完整案例的设计证据。</p>
+
+      <div class="case-browser is-direct is-collapsed" id="caseBrowser" aria-label="全部作品入口">
+        <button class="case-page case-page-01 project-card" type="button" data-project="blue-collar" aria-label="查看蓝领招工项目">
+          <img src="./assets/blue-collar-case/page-01.jpg" alt="" />
+          <span class="project-index">01</span>
+          <span class="project-info">
+            <strong>蓝领招工</strong>
+            <em>B 端业务流程设计</em>
+            <small>筛岗 / 拆 JD / 改简历 / 投递链路</small>
+          </span>
+        </button>
+        <button class="case-page case-page-02 project-card" type="button" data-project="emochi" aria-label="查看 Emochi 项目">
+          <img src="./assets/emochi-cover.png" alt="" />
+          <span class="project-index">02</span>
+          <span class="project-info">
+            <strong>Emochi</strong>
+            <em>AI 情感陪伴产品体验</em>
+            <small>角色发现 / 对话陪伴 / 订阅转化</small>
+          </span>
+        </button>
+        <button class="case-page case-page-03 project-card" type="button" data-project="shanhaijing" aria-label="查看山海经项目">
+          <img src="./assets/shanhaijing-cover.jpg" alt="" />
+          <span class="project-index">03</span>
+          <span class="project-info">
+            <strong>山海经</strong>
+            <em>AIGC 内容设计</em>
+            <small>视觉设定 / 角色生成 / 内容生产</small>
+          </span>
+        </button>
+        <button class="case-page case-page-04 project-card" type="button" data-project="dt-radio" aria-label="查看 DT RADIO 项目">
+          <img src="./assets/dt-radio-cover.jpg" alt="" />
+          <span class="project-index">04</span>
+          <span class="project-info">
+            <strong>DT RADIO</strong>
+            <em>AI Workflow · 上线网站</em>
+            <small>音乐体验 / Vibe Coding / 独立部署</small>
+          </span>
+        </button>
+        <button class="case-page case-page-05 project-card" type="button" data-project="energy-website" aria-label="查看能源网站项目">
+          <img src="./assets/energy-website-cover.png" alt="" />
+          <span class="project-index">05</span>
+          <span class="project-info">
+            <strong>能源网站</strong>
+            <em>Web Design · Visual System</em>
+            <small>企业官网 / 页面视觉 / 响应式表达</small>
+          </span>
+        </button>
+        <button class="case-page case-page-06 project-card" type="button" data-project="digital-human" aria-label="查看数字人视频项目">
+          <img src="./assets/digital-human-cover.jpg" alt="" />
+          <span class="project-index">06</span>
+          <span class="project-info">
+            <strong>数字人视频</strong>
+            <em>Motion · AI Video</em>
+            <small>数字人视频 / 生成流程 / 动态表达</small>
+          </span>
+        </button>
+        <button class="case-folder-trigger" id="caseFolderTrigger" type="button" aria-controls="caseBrowser" aria-expanded="false">
+          <span>展开作品</span>
+        </button>
+      </div>
+
+      <div class="case-lightbox" id="caseLightbox" hidden>
+        <button class="case-lightbox-close" id="caseLightboxClose" type="button" aria-label="关闭项目大图">×</button>
+        <a class="case-lightbox-pdf-link" id="caseLightboxPdfLink" href="./assets/emochi.pdf" target="_blank" rel="noreferrer" hidden>打开 PDF</a>
+        <article class="case-preview" id="casePreview" hidden>
+          <div class="case-preview-copy">
+            <p class="case-preview-eyebrow" id="casePreviewEyebrow">AI WORKFLOW / LIVE PROJECT</p>
+            <h3 id="casePreviewTitle">DT RADIO</h3>
+            <p id="casePreviewDescription">从音乐内容结构、情绪体验到 Vibe Coding 上线的独立网站项目。</p>
+            <ul class="case-preview-tags" id="casePreviewTags" aria-label="项目标签"></ul>
+            <div class="case-preview-actions">
+              <a class="case-preview-primary" id="casePreviewLiveLink" href="https://dt-radio.pages.dev" target="_blank" rel="noreferrer">访问上线网站</a>
+              <a class="case-preview-secondary" id="casePreviewPdfLink" href="./assets/dt-radio.pdf" target="_blank" rel="noreferrer">查看 Case Study PDF</a>
+            </div>
+          </div>
+          <div class="case-preview-media">
+            <img id="casePreviewImage" src="./assets/dt-radio-cover.jpg" alt="" />
+          </div>
+        </article>
+        <img id="caseLightboxImage" src="./assets/emochi-cover.png" alt="" />
+        <div class="case-video-carousel" id="caseVideoCarousel" hidden>
+          <button class="case-video-nav case-video-prev" id="caseVideoPrev" type="button" aria-label="上一个数字人视频">‹</button>
+          <div class="case-video-stage">
+            <video class="case-lightbox-video" id="caseLightboxVideo" controls playsinline></video>
+            <span class="case-video-count" id="caseVideoCount">01 / 06</span>
+          </div>
+          <button class="case-video-nav case-video-next" id="caseVideoNext" type="button" aria-label="下一个数字人视频">›</button>
+        </div>
+        <div class="case-lightbox-pages" id="caseLightboxPages" aria-label="项目完整案例" hidden></div>
+        <iframe class="case-lightbox-frame" id="caseLightboxFrame" title="项目 PDF 预览" hidden></iframe>
+      </div>
+    </section>
+
+    <section class="footer-visual-wall" aria-label="视觉滚动墙">
+      <div class="footer-wall-track footer-wall-track-top" aria-hidden="true">
+        <img src="./assets/emochi-cover.png" alt="" />
+        <img src="./assets/dt-radio-cover.jpg" alt="" />
+        <img src="./assets/profile-photo-1.jpeg" alt="" />
+        <img src="./assets/emochi-page-03.png" alt="" />
+        <img src="./assets/hero-frames/frame_0100.jpg" alt="" />
+        <img src="./assets/emochi-cover.png" alt="" />
+        <img src="./assets/dt-radio-cover.jpg" alt="" />
+        <img src="./assets/profile-photo-1.jpeg" alt="" />
+        <img src="./assets/emochi-page-03.png" alt="" />
+        <img src="./assets/hero-frames/frame_0100.jpg" alt="" />
+      </div>
+      <div class="footer-wall-copy">
+        <p>KIKYO PORTFOLIO / UX/UI · AI EXPERIENCE · AIGC</p>
+        <h2>AI products.<br />Workflow systems.<br />Visual stories.</h2>
+        <span>From C-end AI companionship to B-end recruiting flows, AIGC content, live websites and digital human videos.</span>
+      </div>
+      <div class="footer-wall-track footer-wall-track-bottom" aria-hidden="true">
+        <img src="./assets/profile-photo-left.jpeg" alt="" />
+        <img src="./assets/emochi-page-02.png" alt="" />
+        <img src="./assets/hero-frames/frame_0120.jpg" alt="" />
+        <img src="./assets/dt-radio-cover.jpg" alt="" />
+        <img src="./assets/profile-photo-5.jpeg" alt="" />
+        <img src="./assets/profile-photo-left.jpeg" alt="" />
+        <img src="./assets/emochi-page-02.png" alt="" />
+        <img src="./assets/hero-frames/frame_0120.jpg" alt="" />
+        <img src="./assets/dt-radio-cover.jpg" alt="" />
+        <img src="./assets/profile-photo-5.jpeg" alt="" />
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contact" aria-label="联系与页尾导航">
+    <div class="footer-main">
+      <div class="footer-brand-block">
+        <p class="footer-brand">KIKYO</p>
+        <p>UX/UI Designer focusing on AI experience, product workflow and visual systems.</p>
+      </div>
+
+      <nav class="footer-nav" aria-label="页尾导航">
+        <a href="#top">Home</a>
+        <a href="#profile">About Me</a>
+        <a href="#experience">Experience</a>
+        <a href="#works">Portfolio</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+
+    <div class="footer-ticker" aria-hidden="true">
+      <div class="footer-ticker-track">
+        <span>AI Experience</span>
+        <span>UX/UI Design</span>
+        <span>Visual System</span>
+        <span>Digital Human</span>
+        <span>Selected Works 2026</span>
+        <span>AI Workflow</span>
+        <span>Product Experience</span>
+        <span>AI Experience</span>
+        <span>UX/UI Design</span>
+        <span>Visual System</span>
+        <span>Digital Human</span>
+        <span>Selected Works 2026</span>
+        <span>AI Workflow</span>
+        <span>Product Experience</span>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>2026 KIKYO PORTFOLIO</span>
+      <span>OPEN TO WORK</span>
+      <a href="tel:17863997690">TEL 17863997690</a>
+      <a href="mailto:1507405976@qq.com">1507405976@qq.com</a>
+    </div>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>
