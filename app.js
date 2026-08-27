@@ -568,7 +568,7 @@ const heroScenes = [
 
 const heroFrameCount = 150;
 const heroFrameStart = 10;
-const heroFrameStep = window.matchMedia("(max-width: 720px)").matches ? 4 : 3;
+const heroFrameStep = window.matchMedia("(max-width: 720px)").matches ? 8 : 6;
 const heroIdBadgeStartFrame = 151;
 const preloadedFrames = new Map();
 const hero = document.querySelector(".scroll-hero");
@@ -781,6 +781,15 @@ const digitalHumanVideos = [
   "./assets/digital-human-videos/digital-human-06.mp4"
 ];
 
+const digitalHumanVideoPosters = [
+  "./assets/digital-human-videos/digital-human-01-poster.jpg",
+  "./assets/digital-human-videos/digital-human-02-poster.jpg",
+  "./assets/digital-human-videos/digital-human-03-poster.jpg",
+  "./assets/digital-human-videos/digital-human-04-poster.jpg",
+  "./assets/digital-human-videos/digital-human-05-poster.jpg",
+  "./assets/digital-human-videos/digital-human-06-poster.jpg"
+];
+
 const directProjects = [
   {
     id: "blue-collar",
@@ -825,6 +834,7 @@ const directProjects = [
     title: "数字人视频 / Motion Workflow",
     src: "./assets/digital-human-cover.jpg",
     videoSources: digitalHumanVideos,
+    videoPosters: digitalHumanVideoPosters,
     type: "video-carousel"
   }
 ];
@@ -881,23 +891,25 @@ function resetCaseVideo() {
   if (caseLightboxVideo) {
     caseLightboxVideo.pause();
     caseLightboxVideo.classList.remove("is-loading");
-    caseLightboxVideo.onloadeddata = null;
+    caseLightboxVideo.onloadedmetadata = null;
     caseLightboxVideo.removeAttribute("src");
-    caseLightboxVideo.removeAttribute("poster");
+    caseLightboxVideo.poster = "./assets/digital-human-cover.jpg";
     caseLightboxVideo.load();
   }
 }
 
 function showCaseVideo(project, index) {
   if (!caseLightboxVideo || !project?.videoSources?.length) return;
-  const nextSrc = project.videoSources[(index + project.videoSources.length) % project.videoSources.length];
+  const nextIndex = (index + project.videoSources.length) % project.videoSources.length;
+  const nextSrc = project.videoSources[nextIndex];
+  const nextPoster = project.videoPosters?.[nextIndex] || project.src || "";
   const shouldResume = !caseLightboxVideo.paused && !caseLightboxVideo.ended;
 
   activeVideoProject = project;
-  activeCaseVideoIndex = (index + project.videoSources.length) % project.videoSources.length;
+  activeCaseVideoIndex = nextIndex;
   caseLightboxVideo.pause();
   caseLightboxVideo.classList.add("is-loading");
-  caseLightboxVideo.onloadeddata = () => {
+  caseLightboxVideo.onloadedmetadata = () => {
     caseLightboxVideo.currentTime = 0;
     caseLightboxVideo.classList.remove("is-loading");
     if (shouldResume) {
@@ -905,7 +917,7 @@ function showCaseVideo(project, index) {
     }
   };
   caseLightboxVideo.removeAttribute("src");
-  caseLightboxVideo.removeAttribute("poster");
+  caseLightboxVideo.poster = nextPoster;
   caseLightboxVideo.load();
   caseLightboxVideo.src = nextSrc;
   caseLightboxVideo.title = project.title || "项目视频预览";

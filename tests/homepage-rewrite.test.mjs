@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 
 const projectRoot = "/Users/kikyo/Documents/vibe coding-test/personal-portfolio-site";
 const indexHtml = readFileSync(`${projectRoot}/index.html`, "utf8");
@@ -131,10 +131,19 @@ test("hero frame loading avoids downloading the full sequence on first load", ()
 });
 
 test("hero scroll frames are quantized to reduce decode work while scrolling", () => {
-  assert.match(appJs, /const heroFrameStep = window\.matchMedia\("\(max-width: 720px\)"\)\.matches \? 4 : 3/);
+  assert.match(appJs, /const heroFrameStep = window\.matchMedia\("\(max-width: 720px\)"\)\.matches \? 8 : 6/);
   assert.match(appJs, /function quantizeHeroFrame\(frameNumber\)/);
   assert.match(appJs, /Math\.round\(offset \/ heroFrameStep\) \* heroFrameStep/);
   assert.doesNotMatch(appJs, /centerFrame \+ 5/);
+});
+
+test("works intro includes a direct compressed portfolio pdf download", () => {
+  assert.match(indexHtml, /class="works-download"/);
+  assert.match(indexHtml, /href="\.\/assets\/kikyo-portfolio-2026\.pdf"/);
+  assert.match(indexHtml, /download="KIKYO-Portfolio-2026\.pdf"/);
+  assert.match(indexHtml, /下载完整作品集 PDF/);
+  assert.match(stylesCss, /\.works-download\s*\{/);
+  assert.equal(existsSync(`${projectRoot}/assets/kikyo-portfolio-2026.pdf`), true);
 });
 
 test("pdf case studies open as exported pages instead of the browser pdf viewer", () => {
@@ -155,8 +164,21 @@ test("pdf case studies open as exported pages instead of the browser pdf viewer"
 
 test("digital human project opens a six-video carousel with left and right controls", () => {
   const videoSourceMatches = appJs.match(/digital-human-videos\/digital-human-\d{2}\.mp4/g) ?? [];
+  const posterSourceMatches = appJs.match(/digital-human-videos\/digital-human-\d{2}-poster\.jpg/g) ?? [];
+  const loadingRule = stylesCss.match(/\.case-lightbox-video\.is-loading\s*\{[^}]*\}/)?.[0] ?? "";
 
   assert.equal(new Set(videoSourceMatches).size, 6);
+  assert.equal(new Set(posterSourceMatches).size, 6);
+  for (let index = 1; index <= 6; index += 1) {
+    assert.equal(
+      existsSync(`${projectRoot}/assets/digital-human-videos/digital-human-${String(index).padStart(2, "0")}-poster.jpg`),
+      true
+    );
+    assert.ok(
+      statSync(`${projectRoot}/assets/digital-human-videos/digital-human-${String(index).padStart(2, "0")}.mp4`).size < 25 * 1024 * 1024,
+      `digital-human-${String(index).padStart(2, "0")}.mp4 is small enough for web playback`
+    );
+  }
   assert.match(indexHtml, /id="caseVideoCarousel"/);
   assert.match(indexHtml, /id="caseVideoPrev"/);
   assert.match(indexHtml, /id="caseVideoNext"/);
@@ -169,8 +191,10 @@ test("digital human project opens a six-video carousel with left and right contr
   assert.match(appJs, /caseVideoNext\?\.addEventListener\("click"/);
   assert.match(appJs, /caseLightboxVideo\.classList\.add\("is-loading"\)/);
   assert.match(appJs, /caseLightboxVideo\.removeAttribute\("src"\)/);
-  assert.match(appJs, /caseLightboxVideo\.onloadeddata = \(\) =>/);
+  assert.match(appJs, /caseLightboxVideo\.poster = nextPoster/);
+  assert.match(appJs, /caseLightboxVideo\.onloadedmetadata = \(\) =>/);
   assert.match(stylesCss, /\.case-lightbox-video\.is-loading/);
+  assert.doesNotMatch(loadingRule, /opacity:\s*0\s*;/);
 });
 
 test("works browser can collapse again after it has been opened", () => {
