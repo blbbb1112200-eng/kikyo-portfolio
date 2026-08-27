@@ -568,6 +568,7 @@ const heroScenes = [
 
 const heroFrameCount = 150;
 const heroFrameStart = 10;
+const heroFrameStep = window.matchMedia("(max-width: 720px)").matches ? 4 : 3;
 const heroIdBadgeStartFrame = 151;
 const preloadedFrames = new Map();
 const hero = document.querySelector(".scroll-hero");
@@ -589,6 +590,12 @@ function framePath(frameNumber) {
   return `./assets/hero-frames/frame_${padFrame(frameNumber)}.jpg`;
 }
 
+function quantizeHeroFrame(frameNumber) {
+  const offset = frameNumber - heroFrameStart;
+  const steppedFrame = heroFrameStart + Math.round(offset / heroFrameStep) * heroFrameStep;
+  return Math.min(heroFrameCount, Math.max(heroFrameStart, steppedFrame));
+}
+
 function preloadFrame(frameNumber) {
   if (preloadedFrames.has(frameNumber)) return;
   const image = new Image();
@@ -598,19 +605,18 @@ function preloadFrame(frameNumber) {
 }
 
 function preloadNearbyFrames(centerFrame) {
-  const start = Math.max(1, centerFrame - 3);
-  const end = Math.min(heroFrameCount, centerFrame + 5);
-  for (let frame = start; frame <= end; frame += 1) {
-    preloadFrame(frame);
-  }
+  const targetFrame = quantizeHeroFrame(centerFrame);
+  preloadFrame(targetFrame);
+  preloadFrame(Math.max(heroFrameStart, targetFrame - heroFrameStep));
+  preloadFrame(Math.min(heroFrameCount, targetFrame + heroFrameStep));
 }
 
 function preloadHeroScrollPath() {
-  const step = window.matchMedia("(max-width: 720px)").matches ? 8 : 6;
-  let frame = heroFrameStart + step;
+  const step = heroFrameStep * 3;
+  let frame = quantizeHeroFrame(heroFrameStart + step);
   const loadChunk = () => {
     preloadFrame(frame);
-    frame += step;
+    frame = quantizeHeroFrame(frame + step);
     if (frame <= heroFrameCount) {
       window.setTimeout(loadChunk, 160);
     }
@@ -662,10 +668,11 @@ function updateHeroCopy(sceneIndex) {
 }
 
 function renderHeroProgress(progress) {
-  const targetFrame = Math.min(
+  const rawTargetFrame = Math.min(
     heroFrameCount,
     Math.max(heroFrameStart, Math.round(progress * (heroFrameCount - heroFrameStart)) + heroFrameStart)
   );
+  const targetFrame = quantizeHeroFrame(rawTargetFrame);
 
   document.documentElement.style.setProperty("--curtain", String(Math.min(1, progress * 1.18)));
   document.documentElement.style.setProperty("--hero-zoom", String(progress));

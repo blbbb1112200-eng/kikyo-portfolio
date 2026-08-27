@@ -130,6 +130,13 @@ test("hero frame loading avoids downloading the full sequence on first load", ()
   assert.match(appJs, /preloadHeroScrollPath/);
 });
 
+test("hero scroll frames are quantized to reduce decode work while scrolling", () => {
+  assert.match(appJs, /const heroFrameStep = window\.matchMedia\("\(max-width: 720px\)"\)\.matches \? 4 : 3/);
+  assert.match(appJs, /function quantizeHeroFrame\(frameNumber\)/);
+  assert.match(appJs, /Math\.round\(offset \/ heroFrameStep\) \* heroFrameStep/);
+  assert.doesNotMatch(appJs, /centerFrame \+ 5/);
+});
+
 test("pdf case studies open as exported pages instead of the browser pdf viewer", () => {
   assert.match(indexHtml, /assets\/blue-collar-case\/page-01\.jpg/);
   assert.match(appJs, /const blueCollarCasePages = Array\.from\(\s*\{\s*length: 17\s*\}/);
@@ -328,6 +335,25 @@ test("footer keeps the visual scrolling wall before the navigation footer", () =
   assert.doesNotMatch(indexHtml, /profile-info-name/);
 });
 
+test("footer visual wall tracks are wide enough to fill the viewport before drifting", () => {
+  const topTrack = indexHtml.match(/<div class="footer-wall-track footer-wall-track-top"[\s\S]*?<\/div>/)?.[0] ?? "";
+  const bottomTrack = indexHtml.match(/<div class="footer-wall-track footer-wall-track-bottom"[\s\S]*?<\/div>/)?.[0] ?? "";
+  const topImages = topTrack.match(/footer-wall-ip-\d{2}\.png/g) ?? [];
+  const bottomImages = bottomTrack.match(/footer-wall-ip-\d{2}\.png/g) ?? [];
+
+  assert.equal(topImages.length, 24);
+  assert.equal(bottomImages.length, 24);
+  for (let index = 1; index <= 12; index += 1) {
+    const asset = `footer-wall-ip-${String(index).padStart(2, "0")}.png`;
+    assert.equal(topImages.filter((src) => src === asset).length, 2);
+    assert.equal(bottomImages.filter((src) => src === asset).length, 2);
+  }
+  assert.match(stylesCss, /\.footer-wall-track\s*{[\s\S]*?left: 0/);
+  assert.match(stylesCss, /@keyframes footerWallDrift\s*{[\s\S]*?translate3d\(0, var\(--wall-y\), 0\)/);
+  assert.match(stylesCss, /@keyframes footerWallDrift\s*{[\s\S]*?translate3d\(-50%, var\(--wall-y\), 0\)/);
+  assert.doesNotMatch(stylesCss, /--wall-start/);
+});
+
 test("footer visual wall keeps the headline area clear from drifting images", () => {
   assert.match(stylesCss, /\.footer-visual-wall\s*\{[\s\S]*?min-height: clamp\(720px, 56vw, 980px\)/s);
   assert.match(stylesCss, /\.footer-visual-wall::before\s*\{[\s\S]*?radial-gradient\(ellipse 70% 50% at center/s);
@@ -337,10 +363,12 @@ test("footer visual wall keeps the headline area clear from drifting images", ()
   assert.match(stylesCss, /width:\s*clamp\(168px,\s*12\.8vw,\s*252px\)/);
   assert.match(stylesCss, /object-fit:\s*contain/);
   assert.match(stylesCss, /\.footer-wall-copy h2\s*\{[\s\S]*?font-size: clamp\(46px, 6\.6vw, 106px\)/s);
+  assert.match(stylesCss, /\.footer-wall-copy h2\s*\{[\s\S]*?line-height: 1\.2/s);
   assert.match(stylesCss, /\.footer-wall-copy p\s*\{[\s\S]*?margin: 0 0 30px/s);
   assert.match(stylesCss, /\.footer-wall-copy span\s*\{[\s\S]*?margin-top: 34px/s);
-  assert.match(stylesCss, /translate3d\(var\(--wall-start\),\s*var\(--wall-y\),\s*0\)/);
-  assert.match(stylesCss, /translate3d\(calc\(var\(--wall-start\) - 50%\),\s*var\(--wall-y\),\s*0\)/);
+  assert.match(stylesCss, /translate3d\(0,\s*var\(--wall-y\),\s*0\)/);
+  assert.match(stylesCss, /translate3d\(-50%,\s*var\(--wall-y\),\s*0\)/);
+  assert.doesNotMatch(stylesCss, /--wall-start/);
 });
 
 test("hero layout uses the revised works-signature row and separate portfolio baseline", () => {

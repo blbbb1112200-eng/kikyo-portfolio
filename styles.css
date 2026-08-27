@@ -2607,8 +2607,7 @@ h1 span {
 .footer-wall-track {
   position: absolute;
   z-index: 1;
-  left: 50%;
-  --wall-start: -30%;
+  left: 0;
   --wall-y: 0px;
   display: flex;
   width: max-content;
@@ -2625,7 +2624,6 @@ h1 span {
 
 .footer-wall-track-bottom {
   bottom: clamp(50px, 4.3vw, 82px);
-  --wall-start: -62%;
   --wall-y: 0px;
   animation-direction: reverse;
   animation-duration: 48s;
@@ -2675,7 +2673,7 @@ h1 span {
   color: #050505;
   font-family: var(--font-serif);
   font-size: clamp(46px, 6.6vw, 106px);
-  line-height: 0.94;
+  line-height: 1.2;
   font-weight: 500;
   letter-spacing: 0;
 }
@@ -2692,10 +2690,10 @@ h1 span {
 
 @keyframes footerWallDrift {
   from {
-    transform: translate3d(var(--wall-start), var(--wall-y), 0);
+    transform: translate3d(0, var(--wall-y), 0);
   }
   to {
-    transform: translate3d(calc(var(--wall-start) - 50%), var(--wall-y), 0);
+    transform: translate3d(-50%, var(--wall-y), 0);
   }
 }
 
