@@ -589,32 +589,42 @@ function framePath(frameNumber) {
   return `./assets/hero-frames/frame_${padFrame(frameNumber)}.jpg`;
 }
 
+function preloadFrame(frameNumber) {
+  if (preloadedFrames.has(frameNumber)) return;
+  const image = new Image();
+  image.decoding = "async";
+  image.src = framePath(frameNumber);
+  preloadedFrames.set(frameNumber, image);
+}
+
 function preloadNearbyFrames(centerFrame) {
-  const start = Math.max(1, centerFrame - 5);
-  const end = Math.min(heroFrameCount, centerFrame + 8);
+  const start = Math.max(1, centerFrame - 3);
+  const end = Math.min(heroFrameCount, centerFrame + 5);
   for (let frame = start; frame <= end; frame += 1) {
-    if (preloadedFrames.has(frame)) continue;
-    const image = new Image();
-    image.src = framePath(frame);
-    preloadedFrames.set(frame, image);
+    preloadFrame(frame);
   }
 }
 
-function preloadAllFrames() {
-  let frame = 1;
+function preloadHeroScrollPath() {
+  const step = window.matchMedia("(max-width: 720px)").matches ? 8 : 6;
+  let frame = heroFrameStart + step;
   const loadChunk = () => {
-    const end = Math.min(heroFrameCount, frame + 9);
-    for (; frame <= end; frame += 1) {
-      if (preloadedFrames.has(frame)) continue;
-      const image = new Image();
-      image.src = framePath(frame);
-      preloadedFrames.set(frame, image);
-    }
+    preloadFrame(frame);
+    frame += step;
     if (frame <= heroFrameCount) {
-      window.setTimeout(loadChunk, 80);
+      window.setTimeout(loadChunk, 160);
     }
   };
   loadChunk();
+}
+
+function scheduleHeroScrollPathPreload() {
+  const preload = () => preloadHeroScrollPath();
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(preload, { timeout: 4000 });
+  } else {
+    window.setTimeout(preload, 2400);
+  }
 }
 
 function currentScene(progress) {
@@ -700,7 +710,7 @@ function requestHeroUpdate() {
 }
 
 preloadNearbyFrames(heroFrameStart);
-window.setTimeout(preloadAllFrames, 600);
+scheduleHeroScrollPathPreload();
 
 const cards = Array.from(document.querySelectorAll(".photo-card"));
 const dots = Array.from(document.querySelectorAll(".dots span"));
@@ -784,7 +794,6 @@ const directProjects = [
     id: "shanhaijing",
     title: "山海经 / AIGC 内容设计",
     src: "./assets/shanhaijing-cover.jpg",
-    pdfSrc: "./assets/shanhaijing.pdf",
     pages: shanhaijingCasePages,
     type: "case-pages"
   },

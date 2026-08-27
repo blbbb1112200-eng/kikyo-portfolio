@@ -1,19 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 
-const indexHtml = readFileSync(
-  "/Users/kikyo/Documents/vibe coding-test/personal-portfolio-site/index.html",
-  "utf8"
-);
-const appJs = readFileSync(
-  "/Users/kikyo/Documents/vibe coding-test/personal-portfolio-site/app.js",
-  "utf8"
-);
-const stylesCss = readFileSync(
-  "/Users/kikyo/Documents/vibe coding-test/personal-portfolio-site/styles.css",
-  "utf8"
-);
+const projectRoot = "/Users/kikyo/Documents/vibe coding-test/personal-portfolio-site";
+const indexHtml = readFileSync(`${projectRoot}/index.html`, "utf8");
+const appJs = readFileSync(`${projectRoot}/app.js`, "utf8");
+const stylesCss = readFileSync(`${projectRoot}/styles.css`, "utf8");
 
 test("intro uses a galaxy prompt instead of the old enter button copy", () => {
   assert.match(indexHtml, /intro-galaxy-canvas/);
@@ -84,7 +77,7 @@ test("works cards use the provided Shanhaijing, energy website, and digital huma
   assert.match(appJs, /id: "shanhaijing"/);
   assert.match(appJs, /const shanhaijingCasePages = Array\.from/);
   assert.match(appJs, /pages: shanhaijingCasePages/);
-  assert.match(appJs, /pdfSrc: "\.\/assets\/shanhaijing\.pdf"/);
+  assert.doesNotMatch(appJs, /pdfSrc: "\.\/assets\/shanhaijing\.pdf"/);
   assert.match(appJs, /id: "energy-website"/);
   assert.match(appJs, /const energyWebsiteCasePages = Array\.from/);
   assert.match(appJs, /pages: energyWebsiteCasePages/);
@@ -96,6 +89,45 @@ test("works cards use the provided Shanhaijing, energy website, and digital huma
   assert.match(appJs, /digital-human-videos\/digital-human-01\.mp4/);
   assert.match(appJs, /digital-human-videos\/digital-human-06\.mp4/);
   assert.doesNotMatch(appJs, /videoSrc: "\.\/assets\/digital-human-video\.mp4"/);
+});
+
+test("GitHub Pages build references only concrete assets that can be published", () => {
+  const publishableAssets = new Set(
+    execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard", "assets"], { cwd: projectRoot, encoding: "utf8" })
+      .split("\n")
+      .filter(Boolean)
+  );
+  const source = `${indexHtml}\n${appJs}\n${stylesCss}`;
+  const references = new Set(
+    Array.from(source.matchAll(/\.\/(assets\/[^"'`)>\s]+)/g), (match) => match[1])
+      .filter((assetPath) => !assetPath.includes("${"))
+  );
+
+  for (const assetPath of references) {
+    assert.equal(existsSync(`${projectRoot}/${assetPath}`), true, `${assetPath} exists locally`);
+    assert.equal(publishableAssets.has(assetPath), true, `${assetPath} is publishable on Pages`);
+  }
+});
+
+test("ability videos show poster frames before video data loads", () => {
+  for (const [src, poster] of [
+    ["./assets/ability-research-loop.mp4", "./assets/ability-research-poster.jpg"],
+    ["./assets/ability-aigc-loop.mp4", "./assets/ability-aigc-poster.jpg"],
+    ["./assets/ability-archive-magic-cards.mp4", "./assets/ability-archive-poster.jpg"]
+  ]) {
+    assert.match(
+      indexHtml,
+      new RegExp(`<video[^>]+src="${src.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]+poster="${poster.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`)
+    );
+    assert.equal(existsSync(`${projectRoot}/${poster.replace("./", "")}`), true, `${poster} exists`);
+  }
+
+  assert.doesNotMatch(indexHtml, /ability-[^"]+\.mp4"[^>]+preload="auto"/);
+});
+
+test("hero frame loading avoids downloading the full sequence on first load", () => {
+  assert.doesNotMatch(appJs, /window\.setTimeout\(preloadAllFrames,\s*600\)/);
+  assert.match(appJs, /preloadHeroScrollPath/);
 });
 
 test("pdf case studies open as exported pages instead of the browser pdf viewer", () => {
@@ -285,9 +317,12 @@ test("footer keeps the visual scrolling wall before the navigation footer", () =
   assert.match(indexHtml, /Visual stories\./);
   assert.match(indexHtml, /C-end AI companionship/);
   assert.match(indexHtml, /footer-wall-track/);
-  assert.match(indexHtml, /assets\/dt-radio-cover\.jpg/);
-  assert.match(indexHtml, /assets\/emochi-cover\.png/);
-  assert.match(indexHtml, /assets\/profile-photo-1\.jpeg/);
+  for (let index = 1; index <= 12; index += 1) {
+    assert.match(indexHtml, new RegExp(`assets/footer-wall-ip-${String(index).padStart(2, "0")}\\.png`));
+  }
+  assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?assets\/dt-radio-cover\.jpg/);
+  assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?assets\/emochi-cover\.png/);
+  assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?assets\/profile-photo-1\.jpeg/);
   assert.match(stylesCss, /\.footer-visual-wall/);
   assert.match(stylesCss, /@keyframes footerWallDrift/);
   assert.doesNotMatch(indexHtml, /profile-info-name/);
