@@ -568,7 +568,7 @@ const heroScenes = [
 
 const heroFrameCount = 150;
 const heroFrameStart = 10;
-const heroFrameStep = window.matchMedia("(max-width: 720px)").matches ? 8 : 6;
+const heroFrameStep = window.matchMedia("(max-width: 720px)").matches ? 16 : 12;
 const heroIdBadgeStartFrame = 151;
 const preloadedFrames = new Map();
 const hero = document.querySelector(".scroll-hero");

@@ -131,7 +131,7 @@ test("hero frame loading avoids downloading the full sequence on first load", ()
 });
 
 test("hero scroll frames are quantized to reduce decode work while scrolling", () => {
-  assert.match(appJs, /const heroFrameStep = window\.matchMedia\("\(max-width: 720px\)"\)\.matches \? 8 : 6/);
+  assert.match(appJs, /const heroFrameStep = window\.matchMedia\("\(max-width: 720px\)"\)\.matches \? 16 : 12/);
   assert.match(appJs, /function quantizeHeroFrame\(frameNumber\)/);
   assert.match(appJs, /Math\.round\(offset \/ heroFrameStep\) \* heroFrameStep/);
   assert.doesNotMatch(appJs, /centerFrame \+ 5/);
@@ -349,8 +349,13 @@ test("footer keeps the visual scrolling wall before the navigation footer", () =
   assert.match(indexHtml, /C-end AI companionship/);
   assert.match(indexHtml, /footer-wall-track/);
   for (let index = 1; index <= 12; index += 1) {
-    assert.match(indexHtml, new RegExp(`assets/footer-wall-ip-${String(index).padStart(2, "0")}\\.png`));
+    const asset = `assets/footer-wall-ip-${String(index).padStart(2, "0")}.webp`;
+    assert.match(indexHtml, new RegExp(asset.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.equal(existsSync(`${projectRoot}/${asset}`), true);
+    assert.ok(statSync(`${projectRoot}/${asset}`).size < 240 * 1024, `${asset} is lightweight`);
   }
+  assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?footer-wall-ip-\d{2}\.png/);
+  assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?loading="lazy"/);
   assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?assets\/dt-radio-cover\.jpg/);
   assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?assets\/emochi-cover\.png/);
   assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?assets\/profile-photo-1\.jpeg/);
@@ -362,13 +367,13 @@ test("footer keeps the visual scrolling wall before the navigation footer", () =
 test("footer visual wall tracks are wide enough to fill the viewport before drifting", () => {
   const topTrack = indexHtml.match(/<div class="footer-wall-track footer-wall-track-top"[\s\S]*?<\/div>/)?.[0] ?? "";
   const bottomTrack = indexHtml.match(/<div class="footer-wall-track footer-wall-track-bottom"[\s\S]*?<\/div>/)?.[0] ?? "";
-  const topImages = topTrack.match(/footer-wall-ip-\d{2}\.png/g) ?? [];
-  const bottomImages = bottomTrack.match(/footer-wall-ip-\d{2}\.png/g) ?? [];
+  const topImages = topTrack.match(/footer-wall-ip-\d{2}\.webp/g) ?? [];
+  const bottomImages = bottomTrack.match(/footer-wall-ip-\d{2}\.webp/g) ?? [];
 
   assert.equal(topImages.length, 24);
   assert.equal(bottomImages.length, 24);
   for (let index = 1; index <= 12; index += 1) {
-    const asset = `footer-wall-ip-${String(index).padStart(2, "0")}.png`;
+    const asset = `footer-wall-ip-${String(index).padStart(2, "0")}.webp`;
     assert.equal(topImages.filter((src) => src === asset).length, 2);
     assert.equal(bottomImages.filter((src) => src === asset).length, 2);
   }
