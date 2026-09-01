@@ -125,20 +125,26 @@ test("ability videos show poster frames before video data loads", () => {
   assert.doesNotMatch(indexHtml, /ability-[^"]+\.mp4"[^>]+preload="auto"/);
 });
 
-test("hero frame loading avoids downloading the full sequence on first load", () => {
+test("hero uses the compressed mp4 instead of a scroll image sequence", () => {
+  assert.match(indexHtml, /<video[^>]+class="hero-frame hero-video"[^>]+id="heroVideo"[^>]+src="\.\/assets\/hero-character\.mp4"/);
+  assert.match(indexHtml, /poster="\.\/assets\/hero-frames-web\/frame_0010\.jpg"/);
+  assert.match(indexHtml, /autoplay/);
+  assert.match(indexHtml, /preload="metadata"/);
+  assert.match(appJs, /const heroVideo = document\.querySelector\("#heroVideo"\)/);
+  assert.match(appJs, /function startHeroVideo\(\)/);
   assert.doesNotMatch(appJs, /window\.setTimeout\(preloadAllFrames,\s*600\)/);
-  assert.match(appJs, /preloadHeroScrollPath/);
+  assert.doesNotMatch(appJs, /preloadHeroScrollPath/);
+  assert.doesNotMatch(appJs, /heroFrame\.src = framePath/);
 });
 
-test("hero scroll frames are quantized to reduce decode work while scrolling", () => {
+test("hero playback and intro timing avoid deployed image decode jank", () => {
   assert.match(appJs, /const fullMotionMode = new URLSearchParams/);
   assert.match(appJs, /const lightweightMode = !fullMotionMode \|\| window\.matchMedia/);
-  assert.match(appJs, /const staticHeroMode = window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches/);
-  assert.match(appJs, /const heroFrameStep = lightweightMode \? 35 : 18/);
-  assert.match(appJs, /function quantizeHeroFrame\(frameNumber\)/);
-  assert.match(appJs, /const targetFrame = staticHeroMode \? heroFrameStart : quantizeHeroFrame\(rawTargetFrame\)/);
-  assert.match(appJs, /if \(!staticHeroMode && heroFrame && targetFrame !== activeImageFrame\)/);
-  assert.match(appJs, /Math\.round\(offset \/ heroFrameStep\) \* heroFrameStep/);
+  assert.match(appJs, /const reduceMotionMode = window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches/);
+  assert.match(appJs, /const introDuration = timelineCues\.introEnd \* 1000/);
+  assert.match(appJs, /if \(!heroVideo \|\| reduceMotionMode\) return/);
+  assert.match(appJs, /heroVideo\.play\(\)/);
+  assert.doesNotMatch(appJs, /function quantizeHeroFrame\(frameNumber\)/);
   assert.doesNotMatch(appJs, /centerFrame \+ 5/);
 });
 

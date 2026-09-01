@@ -27,7 +27,7 @@ const requireUserGestureForSound = true;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
 const fullMotionMode = new URLSearchParams(window.location.search).get("motion") === "full";
 const lightweightMode = !fullMotionMode || window.matchMedia("(max-width: 900px), (prefers-reduced-motion: reduce)").matches;
-const staticHeroMode = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduceMotionMode = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const introStage = {
   galaxy: "galaxy",
   transition: "transition",
@@ -54,7 +54,7 @@ const timelineCues = {
   headlineIn: cue(6, 21),
   cardsIn: cue(7, 24)
 };
-const introDuration = lightweightMode ? 1600 : timelineCues.introEnd * 1000;
+const introDuration = timelineCues.introEnd * 1000;
 
 abilityVideos.forEach((video) => {
   video.muted = true;
@@ -586,73 +586,15 @@ const heroScenes = [
   }
 ];
 
-const heroFrameCount = 150;
-const heroFrameStart = 10;
-const heroFrameStep = lightweightMode ? 35 : 18;
-const heroIdBadgeStartFrame = 151;
-const preloadedFrames = new Map();
 const hero = document.querySelector(".scroll-hero");
-const heroFrame = document.querySelector("#heroFrame");
+const heroVideo = document.querySelector("#heroVideo");
 const heroIdBadgePrint = document.querySelector("#heroIdBadgePrint");
 const heroCopy = document.querySelector("#heroCopy");
 const heroTitle = document.querySelector("#heroTitle");
 const heroIndex = document.querySelector("#heroIndex");
 
 let activeHeroScene = -1;
-let activeImageFrame = heroFrameStart;
 let ticking = false;
-
-function padFrame(number) {
-  return String(number).padStart(4, "0");
-}
-
-function framePath(frameNumber) {
-  return `./assets/hero-frames-web/frame_${padFrame(frameNumber)}.jpg`;
-}
-
-function quantizeHeroFrame(frameNumber) {
-  const offset = frameNumber - heroFrameStart;
-  const steppedFrame = heroFrameStart + Math.round(offset / heroFrameStep) * heroFrameStep;
-  return Math.min(heroFrameCount, Math.max(heroFrameStart, steppedFrame));
-}
-
-function preloadFrame(frameNumber) {
-  if (preloadedFrames.has(frameNumber)) return;
-  const image = new Image();
-  image.decoding = "async";
-  image.src = framePath(frameNumber);
-  preloadedFrames.set(frameNumber, image);
-}
-
-function preloadNearbyFrames(centerFrame) {
-  const targetFrame = quantizeHeroFrame(centerFrame);
-  preloadFrame(targetFrame);
-  preloadFrame(Math.max(heroFrameStart, targetFrame - heroFrameStep));
-  preloadFrame(Math.min(heroFrameCount, targetFrame + heroFrameStep));
-}
-
-function preloadHeroScrollPath() {
-  const step = heroFrameStep * 3;
-  let frame = quantizeHeroFrame(heroFrameStart + step);
-  const loadChunk = () => {
-    preloadFrame(frame);
-    frame = quantizeHeroFrame(frame + step);
-    if (frame <= heroFrameCount) {
-      window.setTimeout(loadChunk, 160);
-    }
-  };
-  loadChunk();
-}
-
-function scheduleHeroScrollPathPreload() {
-  if (lightweightMode) return;
-  const preload = () => preloadHeroScrollPath();
-  if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(preload, { timeout: 4000 });
-  } else {
-    window.setTimeout(preload, 2400);
-  }
-}
 
 function currentScene(progress) {
   return heroScenes.findIndex((scene) => progress >= scene.start && progress <= scene.end);
@@ -688,27 +630,25 @@ function updateHeroCopy(sceneIndex) {
   heroCopy.classList.remove("is-hidden");
 }
 
-function renderHeroProgress(progress) {
-  const rawTargetFrame = Math.min(
-    heroFrameCount,
-    Math.max(heroFrameStart, Math.round(progress * (heroFrameCount - heroFrameStart)) + heroFrameStart)
-  );
-  const targetFrame = staticHeroMode ? heroFrameStart : quantizeHeroFrame(rawTargetFrame);
+function startHeroVideo() {
+  if (!heroVideo || reduceMotionMode) return;
+  heroVideo.muted = true;
+  heroVideo.loop = true;
+  const playAttempt = heroVideo.play();
+  if (playAttempt?.catch) {
+    playAttempt.catch(() => {});
+  }
+}
 
+function renderHeroProgress(progress) {
   document.documentElement.style.setProperty("--curtain", String(Math.min(1, progress * 1.18)));
   document.documentElement.style.setProperty("--hero-zoom", String(progress));
   document.documentElement.style.setProperty("--hero-y", String(Math.round(progress * 52)));
   document.documentElement.style.setProperty("--stage-y", String(Math.round(progress * 150)));
   document.documentElement.style.setProperty(
     "--hero-id-badge-opacity",
-    heroIdBadgePrint && targetFrame >= heroIdBadgeStartFrame ? "0.88" : "0"
+    heroIdBadgePrint && progress > 0.94 ? "0.88" : "0"
   );
-
-  if (!staticHeroMode && heroFrame && targetFrame !== activeImageFrame) {
-    activeImageFrame = targetFrame;
-    heroFrame.src = framePath(targetFrame);
-    preloadNearbyFrames(targetFrame);
-  }
 
   const sceneIndex = currentScene(progress);
   updateHeroCopy(sceneIndex);
@@ -737,9 +677,7 @@ function requestHeroUpdate() {
   });
 }
 
-if (!staticHeroMode) {
-  preloadNearbyFrames(heroFrameStart);
-}
+startHeroVideo();
 
 const cards = Array.from(document.querySelectorAll(".photo-card"));
 const dots = Array.from(document.querySelectorAll(".dots span"));
