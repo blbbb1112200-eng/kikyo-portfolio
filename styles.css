@@ -598,27 +598,20 @@ body.is-intro-active .intro-progress {
   will-change: transform;
 }
 
-.hero-id-badge-print {
+.hero-butterfly-print {
   position: absolute;
   z-index: 1;
-  left: 45.2%;
-  top: 53%;
-  width: clamp(146px, 15vw, 292px);
-  aspect-ratio: 3600 / 4257;
-  object-fit: cover;
-  opacity: var(--hero-id-badge-opacity, 0);
+  left: 52%;
+  top: 59%;
+  width: clamp(92px, 9vw, 172px);
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  opacity: var(--hero-butterfly-opacity, 0);
   pointer-events: none;
-  transform:
-    translateY(calc(var(--hero-y, 0) * -1px))
-    perspective(720px)
-    rotateX(2.5deg)
-    rotateY(-7deg)
-    rotateZ(-2.8deg)
-    skewY(-2deg);
+  transform: translate(-50%, calc(-50% + var(--hero-y, 0) * -1px));
   transform-origin: center center;
-  clip-path: polygon(9% 4%, 91% 3%, 95% 95%, 5% 98%);
-  filter: blur(0.28px) brightness(1.02) saturate(0.94) contrast(0.96);
-  mix-blend-mode: normal;
+  filter: drop-shadow(0 0 18px rgba(220, 238, 255, 0.56)) drop-shadow(0 18px 28px rgba(0, 0, 0, 0.3));
+  mix-blend-mode: screen;
   transition: opacity 180ms ease;
   will-change: opacity, transform;
 }
