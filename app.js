@@ -25,6 +25,7 @@ let galaxyCenter = { x: 0.5, y: 0.5 };
 let galaxyTarget = { x: 0.5, y: 0.5 };
 const requireUserGestureForSound = true;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
+const lightweightMode = window.matchMedia("(max-width: 900px), (prefers-reduced-motion: reduce)").matches;
 const introStage = {
   galaxy: "galaxy",
   transition: "transition",
@@ -32,8 +33,8 @@ const introStage = {
   complete: "complete"
 };
 const galaxyConfig = {
-  streamCount: 210,
-  dustCount: 64,
+  streamCount: lightweightMode ? 72 : 132,
+  dustCount: lightweightMode ? 20 : 40,
   pointerEase: 0.052,
   pointerRangeX: 0.065,
   pointerRangeY: 0.048,
@@ -577,7 +578,7 @@ const heroScenes = [
 
 const heroFrameCount = 150;
 const heroFrameStart = 10;
-const heroFrameStep = window.matchMedia("(max-width: 720px)").matches ? 16 : 12;
+const heroFrameStep = lightweightMode ? 24 : 18;
 const heroIdBadgeStartFrame = 151;
 const preloadedFrames = new Map();
 const hero = document.querySelector(".scroll-hero");
@@ -634,6 +635,7 @@ function preloadHeroScrollPath() {
 }
 
 function scheduleHeroScrollPathPreload() {
+  if (lightweightMode) return;
   const preload = () => preloadHeroScrollPath();
   if ("requestIdleCallback" in window) {
     window.requestIdleCallback(preload, { timeout: 4000 });
@@ -726,7 +728,6 @@ function requestHeroUpdate() {
 }
 
 preloadNearbyFrames(heroFrameStart);
-scheduleHeroScrollPathPreload();
 
 const cards = Array.from(document.querySelectorAll(".photo-card"));
 const dots = Array.from(document.querySelectorAll(".dots span"));
@@ -810,7 +811,7 @@ const directProjects = [
   {
     id: "emochi",
     title: "Emochi / AI 情感陪伴产品体验",
-    src: "./assets/emochi-cover.png",
+    src: "./assets/thumbs/emochi-cover.jpg",
     pdfSrc: "./assets/emochi.pdf",
     pages: emochiCasePages,
     type: "case-pages"
@@ -833,7 +834,7 @@ const directProjects = [
   {
     id: "energy-website",
     title: "能源网站 / Web Design",
-    src: "./assets/energy-website-cover.png",
+    src: "./assets/thumbs/energy-website-cover.jpg",
     pdfSrc: "./assets/energy-website.pdf",
     pages: energyWebsiteCasePages,
     type: "case-pages"

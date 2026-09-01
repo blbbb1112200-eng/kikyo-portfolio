@@ -72,7 +72,7 @@ test("works cards use the provided Shanhaijing, energy website, and digital huma
   assert.match(indexHtml, /data-project="energy-website"/);
   assert.match(indexHtml, /data-project="digital-human"/);
   assert.match(indexHtml, /assets\/shanhaijing-cover\.jpg/);
-  assert.match(indexHtml, /assets\/energy-website-cover\.png/);
+  assert.match(indexHtml, /assets\/thumbs\/energy-website-cover\.jpg/);
   assert.match(indexHtml, /assets\/digital-human-cover\.jpg/);
   assert.match(appJs, /id: "shanhaijing"/);
   assert.match(appJs, /const shanhaijingCasePages = Array\.from/);
@@ -131,7 +131,8 @@ test("hero frame loading avoids downloading the full sequence on first load", ()
 });
 
 test("hero scroll frames are quantized to reduce decode work while scrolling", () => {
-  assert.match(appJs, /const heroFrameStep = window\.matchMedia\("\(max-width: 720px\)"\)\.matches \? 16 : 12/);
+  assert.match(appJs, /const lightweightMode = window\.matchMedia/);
+  assert.match(appJs, /const heroFrameStep = lightweightMode \? 24 : 18/);
   assert.match(appJs, /function quantizeHeroFrame\(frameNumber\)/);
   assert.match(appJs, /Math\.round\(offset \/ heroFrameStep\) \* heroFrameStep/);
   assert.doesNotMatch(appJs, /centerFrame \+ 5/);
@@ -355,7 +356,7 @@ test("footer keeps the visual scrolling wall before the navigation footer", () =
     assert.ok(statSync(`${projectRoot}/${asset}`).size < 240 * 1024, `${asset} is lightweight`);
   }
   assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?footer-wall-ip-\d{2}\.png/);
-  assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?loading="lazy"/);
+  assert.match(indexHtml, /footer-wall-track[\s\S]*?loading="lazy"/);
   assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?assets\/dt-radio-cover\.jpg/);
   assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?assets\/emochi-cover\.png/);
   assert.doesNotMatch(indexHtml, /footer-wall-track[\s\S]*?assets\/profile-photo-1\.jpeg/);
