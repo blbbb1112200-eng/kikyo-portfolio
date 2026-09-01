@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Kikyo Portfolio</title>
-  <link rel="preload" as="image" href="./assets/hero-frames/frame_0010.jpg" fetchpriority="high" />
+  <link rel="preload" as="image" href="./assets/hero-frames-web/frame_0010.jpg" fetchpriority="high" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body class="is-loading">
@@ -54,7 +54,7 @@
     <section class="scroll-hero" aria-label="个人定位开场">
       <div class="hero-sticky">
         <div class="side-rays hero-rays" aria-hidden="true"></div>
-        <img class="hero-frame" id="heroFrame" src="./assets/hero-frames/frame_0010.jpg" alt="" decoding="async" fetchpriority="high" />
+        <img class="hero-frame" id="heroFrame" src="./assets/hero-frames-web/frame_0010.jpg" alt="" decoding="async" fetchpriority="high" />
         <img class="hero-id-badge-print" id="heroIdBadgePrint" src="./assets/kikyo-id-badge.png" alt="" />
         <div class="hero-scrim"></div>
         <div class="scroll-curtain" aria-hidden="true"></div>
@@ -80,15 +80,15 @@
 
           <div class="ability-layer" aria-label="能力视频切片">
             <article class="ability-card ability-card-research">
-              <video src="./assets/ability-research-loop.mp4" poster="./assets/ability-research-poster.jpg" autoplay muted loop playsinline preload="metadata"></video>
+              <video data-src="./assets/ability-research-loop.mp4" poster="./assets/ability-research-poster.jpg" muted loop playsinline preload="none"></video>
             </article>
 
             <article class="ability-card ability-card-aigc">
-              <video src="./assets/ability-aigc-loop.mp4" poster="./assets/ability-aigc-poster.jpg" autoplay muted loop playsinline preload="metadata"></video>
+              <video data-src="./assets/ability-aigc-loop.mp4" poster="./assets/ability-aigc-poster.jpg" muted loop playsinline preload="none"></video>
             </article>
 
             <article class="ability-card ability-card-archive">
-              <video src="./assets/ability-archive-magic-cards.mp4" poster="./assets/ability-archive-poster.jpg" autoplay muted loop playsinline preload="metadata"></video>
+              <video data-src="./assets/ability-archive-magic-cards.mp4" poster="./assets/ability-archive-poster.jpg" muted loop playsinline preload="none"></video>
             </article>
           </div>
 

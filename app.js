@@ -60,6 +60,14 @@ abilityVideos.forEach((video) => {
   video.currentTime = 0;
 });
 
+function loadAbilityVideo(video) {
+  if (!video || video.src) return;
+  const source = video.dataset.src;
+  if (!source) return;
+  video.src = source;
+  video.load();
+}
+
 if (bgmAudio) {
   bgmAudio.loop = true;
 }
@@ -425,6 +433,7 @@ function startPageTimeline(start) {
   runAtCue(timelineCues.cardsIn, () => {
     document.body.classList.add("is-cards-cued");
     abilityVideos.forEach((video) => {
+      loadAbilityVideo(video);
       video.play().catch(() => {});
     });
   });
@@ -587,7 +596,7 @@ function padFrame(number) {
 }
 
 function framePath(frameNumber) {
-  return `./assets/hero-frames/frame_${padFrame(frameNumber)}.jpg`;
+  return `./assets/hero-frames-web/frame_${padFrame(frameNumber)}.jpg`;
 }
 
 function quantizeHeroFrame(frameNumber) {
