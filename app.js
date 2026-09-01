@@ -27,7 +27,7 @@ const requireUserGestureForSound = true;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
 const fullMotionMode = new URLSearchParams(window.location.search).get("motion") === "full";
 const lightweightMode = !fullMotionMode || window.matchMedia("(max-width: 900px), (prefers-reduced-motion: reduce)").matches;
-const staticHeroMode = lightweightMode;
+const staticHeroMode = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const introStage = {
   galaxy: "galaxy",
   transition: "transition",
