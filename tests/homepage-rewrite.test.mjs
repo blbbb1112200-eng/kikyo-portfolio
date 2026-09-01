@@ -134,6 +134,8 @@ test("hero uses the compressed mp4 instead of a scroll image sequence", () => {
   assert.match(appJs, /const heroVideo = document\.querySelector\("#heroVideo"\)/);
   assert.match(appJs, /function prepareHeroVideo\(\)/);
   assert.match(appJs, /function seekHeroVideo\(progress\)/);
+  assert.ok(statSync(`${projectRoot}/assets/hero-character.mp4`).size > 8 * 1024 * 1024);
+  assert.ok(statSync(`${projectRoot}/assets/hero-character.mp4`).size < 20 * 1024 * 1024);
   assert.doesNotMatch(appJs, /window\.setTimeout\(preloadAllFrames,\s*600\)/);
   assert.doesNotMatch(appJs, /preloadHeroScrollPath/);
   assert.doesNotMatch(appJs, /heroFrame\.src = framePath/);
