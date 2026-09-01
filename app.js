@@ -767,7 +767,7 @@ const casePreviewPdfLink = document.querySelector("#casePreviewPdfLink");
 let activePhoto = 0;
 
 const emochiCasePages = Array.from(
-  { length: 32 },
+  { length: 33 },
   (_, index) => `./assets/emochi-case/page-${String(index + 1).padStart(2, "0")}.jpg`
 );
 

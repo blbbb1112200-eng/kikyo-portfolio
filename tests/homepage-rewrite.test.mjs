@@ -318,7 +318,7 @@ test("emochi project opens the exported PDF case study", () => {
   assert.match(indexHtml, /id="caseLightboxPages"/);
   assert.match(indexHtml, /href="\.\/assets\/emochi\.pdf"/);
   assert.match(appJs, /id: "emochi"/);
-  assert.match(appJs, /length: 32/);
+  assert.match(appJs, /length: 33/);
   assert.match(appJs, /assets\/emochi-case\/page-/);
   assert.match(appJs, /pdfSrc: "\.\/assets\/emochi\.pdf"/);
   assert.match(appJs, /type: "case-pages"/);
