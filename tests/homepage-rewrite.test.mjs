@@ -133,8 +133,11 @@ test("hero frame loading avoids downloading the full sequence on first load", ()
 test("hero scroll frames are quantized to reduce decode work while scrolling", () => {
   assert.match(appJs, /const fullMotionMode = new URLSearchParams/);
   assert.match(appJs, /const lightweightMode = !fullMotionMode \|\| window\.matchMedia/);
+  assert.match(appJs, /const staticHeroMode = lightweightMode/);
   assert.match(appJs, /const heroFrameStep = lightweightMode \? 35 : 18/);
   assert.match(appJs, /function quantizeHeroFrame\(frameNumber\)/);
+  assert.match(appJs, /const targetFrame = staticHeroMode \? heroFrameStart : quantizeHeroFrame\(rawTargetFrame\)/);
+  assert.match(appJs, /if \(!staticHeroMode && heroFrame && targetFrame !== activeImageFrame\)/);
   assert.match(appJs, /Math\.round\(offset \/ heroFrameStep\) \* heroFrameStep/);
   assert.doesNotMatch(appJs, /centerFrame \+ 5/);
 });

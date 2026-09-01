@@ -27,6 +27,7 @@ const requireUserGestureForSound = true;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
 const fullMotionMode = new URLSearchParams(window.location.search).get("motion") === "full";
 const lightweightMode = !fullMotionMode || window.matchMedia("(max-width: 900px), (prefers-reduced-motion: reduce)").matches;
+const staticHeroMode = lightweightMode;
 const introStage = {
   galaxy: "galaxy",
   transition: "transition",
@@ -692,7 +693,7 @@ function renderHeroProgress(progress) {
     heroFrameCount,
     Math.max(heroFrameStart, Math.round(progress * (heroFrameCount - heroFrameStart)) + heroFrameStart)
   );
-  const targetFrame = quantizeHeroFrame(rawTargetFrame);
+  const targetFrame = staticHeroMode ? heroFrameStart : quantizeHeroFrame(rawTargetFrame);
 
   document.documentElement.style.setProperty("--curtain", String(Math.min(1, progress * 1.18)));
   document.documentElement.style.setProperty("--hero-zoom", String(progress));
@@ -703,7 +704,7 @@ function renderHeroProgress(progress) {
     heroIdBadgePrint && targetFrame >= heroIdBadgeStartFrame ? "0.88" : "0"
   );
 
-  if (heroFrame && targetFrame !== activeImageFrame) {
+  if (!staticHeroMode && heroFrame && targetFrame !== activeImageFrame) {
     activeImageFrame = targetFrame;
     heroFrame.src = framePath(targetFrame);
     preloadNearbyFrames(targetFrame);
@@ -736,7 +737,9 @@ function requestHeroUpdate() {
   });
 }
 
-preloadNearbyFrames(heroFrameStart);
+if (!staticHeroMode) {
+  preloadNearbyFrames(heroFrameStart);
+}
 
 const cards = Array.from(document.querySelectorAll(".photo-card"));
 const dots = Array.from(document.querySelectorAll(".dots span"));
