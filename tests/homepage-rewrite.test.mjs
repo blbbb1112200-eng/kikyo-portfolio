@@ -128,10 +128,12 @@ test("ability videos show poster frames before video data loads", () => {
 test("hero uses the compressed mp4 instead of a scroll image sequence", () => {
   assert.match(indexHtml, /<video[^>]+class="hero-frame hero-video"[^>]+id="heroVideo"[^>]+src="\.\/assets\/hero-character\.mp4"/);
   assert.match(indexHtml, /poster="\.\/assets\/hero-frames-web\/frame_0010\.jpg"/);
-  assert.match(indexHtml, /autoplay/);
-  assert.match(indexHtml, /preload="metadata"/);
+  assert.doesNotMatch(indexHtml, /<video[^>]+id="heroVideo"[^>]+autoplay/);
+  assert.doesNotMatch(indexHtml, /<video[^>]+id="heroVideo"[^>]+loop/);
+  assert.match(indexHtml, /preload="auto"/);
   assert.match(appJs, /const heroVideo = document\.querySelector\("#heroVideo"\)/);
-  assert.match(appJs, /function startHeroVideo\(\)/);
+  assert.match(appJs, /function prepareHeroVideo\(\)/);
+  assert.match(appJs, /function seekHeroVideo\(progress\)/);
   assert.doesNotMatch(appJs, /window\.setTimeout\(preloadAllFrames,\s*600\)/);
   assert.doesNotMatch(appJs, /preloadHeroScrollPath/);
   assert.doesNotMatch(appJs, /heroFrame\.src = framePath/);
@@ -142,8 +144,10 @@ test("hero playback and intro timing avoid deployed image decode jank", () => {
   assert.match(appJs, /const lightweightMode = !fullMotionMode \|\| window\.matchMedia/);
   assert.match(appJs, /const reduceMotionMode = window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches/);
   assert.match(appJs, /const introDuration = timelineCues\.introEnd \* 1000/);
-  assert.match(appJs, /if \(!heroVideo \|\| reduceMotionMode\) return/);
-  assert.match(appJs, /heroVideo\.play\(\)/);
+  assert.match(appJs, /heroVideo\.loop = false/);
+  assert.match(appJs, /heroVideo\.pause\(\)/);
+  assert.match(appJs, /heroVideo\.currentTime = targetTime/);
+  assert.doesNotMatch(appJs, /heroVideo\.play\(\)/);
   assert.doesNotMatch(appJs, /function quantizeHeroFrame\(frameNumber\)/);
   assert.doesNotMatch(appJs, /centerFrame \+ 5/);
 });

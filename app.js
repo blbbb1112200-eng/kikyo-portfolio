@@ -630,17 +630,34 @@ function updateHeroCopy(sceneIndex) {
   heroCopy.classList.remove("is-hidden");
 }
 
-function startHeroVideo() {
+function seekHeroVideo(progress) {
   if (!heroVideo || reduceMotionMode) return;
-  heroVideo.muted = true;
-  heroVideo.loop = true;
-  const playAttempt = heroVideo.play();
-  if (playAttempt?.catch) {
-    playAttempt.catch(() => {});
+  if (!Number.isFinite(heroVideo.duration) || heroVideo.duration <= 0) return;
+
+  const targetTime = Math.min(heroVideo.duration - 0.04, Math.max(0, progress * heroVideo.duration));
+  if (Math.abs(heroVideo.currentTime - targetTime) < 0.04) return;
+
+  try {
+    heroVideo.currentTime = targetTime;
+  } catch {
+    // Safari can briefly reject seeks before enough metadata is ready.
   }
 }
 
+function prepareHeroVideo() {
+  if (!heroVideo) return;
+  heroVideo.muted = true;
+  heroVideo.loop = false;
+  heroVideo.pause();
+  heroVideo.addEventListener("loadedmetadata", () => {
+    heroVideo.currentTime = 0;
+    updateHero();
+  }, { once: true });
+}
+
 function renderHeroProgress(progress) {
+  seekHeroVideo(progress);
+
   document.documentElement.style.setProperty("--curtain", String(Math.min(1, progress * 1.18)));
   document.documentElement.style.setProperty("--hero-zoom", String(progress));
   document.documentElement.style.setProperty("--hero-y", String(Math.round(progress * 52)));
@@ -677,7 +694,7 @@ function requestHeroUpdate() {
   });
 }
 
-startHeroVideo();
+prepareHeroVideo();
 
 const cards = Array.from(document.querySelectorAll(".photo-card"));
 const dots = Array.from(document.querySelectorAll(".dots span"));
