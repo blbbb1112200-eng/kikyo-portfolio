@@ -131,8 +131,9 @@ test("hero frame loading avoids downloading the full sequence on first load", ()
 });
 
 test("hero scroll frames are quantized to reduce decode work while scrolling", () => {
-  assert.match(appJs, /const lightweightMode = window\.matchMedia/);
-  assert.match(appJs, /const heroFrameStep = lightweightMode \? 24 : 18/);
+  assert.match(appJs, /const fullMotionMode = new URLSearchParams/);
+  assert.match(appJs, /const lightweightMode = !fullMotionMode \|\| window\.matchMedia/);
+  assert.match(appJs, /const heroFrameStep = lightweightMode \? 35 : 18/);
   assert.match(appJs, /function quantizeHeroFrame\(frameNumber\)/);
   assert.match(appJs, /Math\.round\(offset \/ heroFrameStep\) \* heroFrameStep/);
   assert.doesNotMatch(appJs, /centerFrame \+ 5/);
@@ -317,7 +318,7 @@ test("emochi project opens the exported PDF case study", () => {
   assert.match(indexHtml, /id="caseLightboxPages"/);
   assert.match(indexHtml, /href="\.\/assets\/emochi\.pdf"/);
   assert.match(appJs, /id: "emochi"/);
-  assert.match(appJs, /length: 29/);
+  assert.match(appJs, /length: 32/);
   assert.match(appJs, /assets\/emochi-case\/page-/);
   assert.match(appJs, /pdfSrc: "\.\/assets\/emochi\.pdf"/);
   assert.match(appJs, /type: "case-pages"/);

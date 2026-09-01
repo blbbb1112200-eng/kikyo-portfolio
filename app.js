@@ -25,7 +25,8 @@ let galaxyCenter = { x: 0.5, y: 0.5 };
 let galaxyTarget = { x: 0.5, y: 0.5 };
 const requireUserGestureForSound = true;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
-const lightweightMode = window.matchMedia("(max-width: 900px), (prefers-reduced-motion: reduce)").matches;
+const fullMotionMode = new URLSearchParams(window.location.search).get("motion") === "full";
+const lightweightMode = !fullMotionMode || window.matchMedia("(max-width: 900px), (prefers-reduced-motion: reduce)").matches;
 const introStage = {
   galaxy: "galaxy",
   transition: "transition",
@@ -33,8 +34,8 @@ const introStage = {
   complete: "complete"
 };
 const galaxyConfig = {
-  streamCount: lightweightMode ? 72 : 132,
-  dustCount: lightweightMode ? 20 : 40,
+  streamCount: lightweightMode ? 36 : 96,
+  dustCount: lightweightMode ? 10 : 28,
   pointerEase: 0.052,
   pointerRangeX: 0.065,
   pointerRangeY: 0.048,
@@ -52,7 +53,7 @@ const timelineCues = {
   headlineIn: cue(6, 21),
   cardsIn: cue(7, 24)
 };
-const introDuration = timelineCues.introEnd * 1000;
+const introDuration = lightweightMode ? 1600 : timelineCues.introEnd * 1000;
 
 abilityVideos.forEach((video) => {
   video.muted = true;
@@ -509,7 +510,11 @@ if (previewMode) {
   currentIntroStage = introStage.galaxy;
   document.body.classList.add("is-galaxy-stage");
   resetViewportToHero();
-  startGalaxyCanvas();
+  if (lightweightMode) {
+    introGalaxyCanvas?.setAttribute("hidden", "");
+  } else {
+    startGalaxyCanvas();
+  }
   buildButterflyParticles();
 
   window.addEventListener("pointermove", (event) => {
@@ -518,15 +523,19 @@ if (previewMode) {
     const y = event.clientY - rect.top;
     introLoader.style.setProperty("--intro-mouse-x", `${x}px`);
     introLoader.style.setProperty("--intro-mouse-y", `${y * 0.08}px`);
-    galaxyTarget.x = event.clientX / window.innerWidth;
-    galaxyTarget.y = event.clientY / window.innerHeight;
+    if (!lightweightMode) {
+      galaxyTarget.x = event.clientX / window.innerWidth;
+      galaxyTarget.y = event.clientY / window.innerHeight;
+    }
   });
 
   window.addEventListener("pageshow", () => {
     if (!introFinished) resetViewportToHero();
   });
 
-  window.addEventListener("resize", resizeGalaxyCanvas);
+  if (!lightweightMode) {
+    window.addEventListener("resize", resizeGalaxyCanvas);
+  }
 
   if (shouldAutoStartIntro({ requireUserGestureForSound })) {
     window.addEventListener("load", startIntroProgress);
@@ -578,7 +587,7 @@ const heroScenes = [
 
 const heroFrameCount = 150;
 const heroFrameStart = 10;
-const heroFrameStep = lightweightMode ? 24 : 18;
+const heroFrameStep = lightweightMode ? 35 : 18;
 const heroIdBadgeStartFrame = 151;
 const preloadedFrames = new Map();
 const hero = document.querySelector(".scroll-hero");
@@ -758,7 +767,7 @@ const casePreviewPdfLink = document.querySelector("#casePreviewPdfLink");
 let activePhoto = 0;
 
 const emochiCasePages = Array.from(
-  { length: 29 },
+  { length: 32 },
   (_, index) => `./assets/emochi-case/page-${String(index + 1).padStart(2, "0")}.jpg`
 );
 
