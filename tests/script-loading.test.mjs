@@ -12,7 +12,7 @@ const appJs = readFileSync(
 );
 
 test("index loads app.js as a classic script", () => {
-  assert.match(indexHtml, /<script\s+src="\.\/app\.js"><\/script>/);
+  assert.match(indexHtml, /<script\s+src="\.\/app\.js(?:\?[^"]+)?"><\/script>/);
   assert.doesNotMatch(indexHtml, /<script\s+type="module"\s+src="\.\/app\.js"><\/script>/);
 });
 
