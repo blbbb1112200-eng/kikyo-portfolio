@@ -130,7 +130,9 @@ test("hero uses the compressed mp4 instead of a scroll image sequence", () => {
   assert.match(indexHtml, /<img[^>]+class="hero-butterfly-print"[^>]+id="heroButterflyPrint"[^>]+src="\.\/assets\/dt-white-butterfly\.png"/);
   assert.doesNotMatch(indexHtml, /hero-id-badge-print/);
   assert.doesNotMatch(indexHtml, /kikyo-id-badge/);
-  assert.match(indexHtml, /poster="\.\/assets\/hero-frames-web\/frame_0010\.jpg"/);
+  assert.match(indexHtml, /<link[^>]+rel="preload"[^>]+href="\.\/assets\/hero-first-frame\.jpg"/);
+  assert.match(indexHtml, /poster="\.\/assets\/hero-first-frame\.jpg"/);
+  assert.match(stylesCss, /background:\s*#030303 url\("\.\/assets\/hero-first-frame\.jpg"\) center \/ cover no-repeat/);
   assert.doesNotMatch(indexHtml, /<video[^>]+id="heroVideo"[^>]+autoplay/);
   assert.doesNotMatch(indexHtml, /<video[^>]+id="heroVideo"[^>]+loop/);
   assert.match(indexHtml, /preload="auto"/);
@@ -154,6 +156,9 @@ test("hero playback and intro timing avoid deployed image decode jank", () => {
   assert.match(appJs, /const introDuration = timelineCues\.introEnd \* 1000/);
   assert.match(appJs, /heroVideo\.loop = false/);
   assert.match(appJs, /heroVideo\.pause\(\)/);
+  assert.match(appJs, /const heroVideoStartTime = 0\.8/);
+  assert.match(appJs, /heroVideoStartTime \+ Math\.max\(0, progress\) \* playableDuration/);
+  assert.match(appJs, /heroVideo\.currentTime = heroVideoStartTime/);
   assert.match(appJs, /heroVideo\.currentTime = targetTime/);
   assert.doesNotMatch(appJs, /heroVideo\.play\(\)/);
   assert.doesNotMatch(appJs, /function quantizeHeroFrame\(frameNumber\)/);

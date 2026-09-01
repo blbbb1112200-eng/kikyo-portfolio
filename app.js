@@ -592,6 +592,7 @@ const heroButterflyPrint = document.querySelector("#heroButterflyPrint");
 const heroCopy = document.querySelector("#heroCopy");
 const heroTitle = document.querySelector("#heroTitle");
 const heroIndex = document.querySelector("#heroIndex");
+const heroVideoStartTime = 0.8;
 
 let activeHeroScene = -1;
 let ticking = false;
@@ -634,7 +635,8 @@ function seekHeroVideo(progress) {
   if (!heroVideo || reduceMotionMode) return;
   if (!Number.isFinite(heroVideo.duration) || heroVideo.duration <= 0) return;
 
-  const targetTime = Math.min(heroVideo.duration - 0.04, Math.max(0, progress * heroVideo.duration));
+  const playableDuration = Math.max(0.1, heroVideo.duration - heroVideoStartTime - 0.04);
+  const targetTime = Math.min(heroVideo.duration - 0.04, heroVideoStartTime + Math.max(0, progress) * playableDuration);
   if (Math.abs(heroVideo.currentTime - targetTime) < 0.04) return;
 
   try {
@@ -650,7 +652,7 @@ function prepareHeroVideo() {
   heroVideo.loop = false;
   heroVideo.pause();
   heroVideo.addEventListener("loadedmetadata", () => {
-    heroVideo.currentTime = 0;
+    heroVideo.currentTime = heroVideoStartTime;
     updateHero();
   }, { once: true });
 }
