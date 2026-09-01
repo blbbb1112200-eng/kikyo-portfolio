@@ -588,7 +588,6 @@ const heroScenes = [
 
 const hero = document.querySelector(".scroll-hero");
 const heroVideo = document.querySelector("#heroVideo");
-const heroButterflyPrint = document.querySelector("#heroButterflyPrint");
 const heroCopy = document.querySelector("#heroCopy");
 const heroTitle = document.querySelector("#heroTitle");
 const heroIndex = document.querySelector("#heroIndex");
@@ -664,10 +663,6 @@ function renderHeroProgress(progress) {
   document.documentElement.style.setProperty("--hero-zoom", String(progress));
   document.documentElement.style.setProperty("--hero-y", String(Math.round(progress * 52)));
   document.documentElement.style.setProperty("--stage-y", String(Math.round(progress * 150)));
-  document.documentElement.style.setProperty(
-    "--hero-butterfly-opacity",
-    heroButterflyPrint && progress > 0.88 ? "0.92" : "0"
-  );
 
   const sceneIndex = currentScene(progress);
   updateHeroCopy(sceneIndex);

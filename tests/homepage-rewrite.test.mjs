@@ -127,7 +127,8 @@ test("ability videos show poster frames before video data loads", () => {
 
 test("hero uses the compressed mp4 instead of a scroll image sequence", () => {
   assert.match(indexHtml, /<video[^>]+class="hero-frame hero-video"[^>]+id="heroVideo"[^>]+src="\.\/assets\/hero-character\.mp4"/);
-  assert.match(indexHtml, /<img[^>]+class="hero-butterfly-print"[^>]+id="heroButterflyPrint"[^>]+src="\.\/assets\/dt-white-butterfly\.png"/);
+  assert.doesNotMatch(indexHtml, /hero-butterfly-print/);
+  assert.doesNotMatch(indexHtml, /dt-white-butterfly/);
   assert.doesNotMatch(indexHtml, /hero-id-badge-print/);
   assert.doesNotMatch(indexHtml, /kikyo-id-badge/);
   assert.match(indexHtml, /<link[^>]+rel="preload"[^>]+href="\.\/assets\/hero-first-frame\.jpg"/);
@@ -140,8 +141,11 @@ test("hero uses the compressed mp4 instead of a scroll image sequence", () => {
   assert.match(appJs, /function prepareHeroVideo\(\)/);
   assert.match(appJs, /function seekHeroVideo\(progress\)/);
   assert.doesNotMatch(appJs, /heroIdBadgePrint/);
+  assert.doesNotMatch(appJs, /heroButterflyPrint/);
+  assert.doesNotMatch(appJs, /hero-butterfly-opacity/);
   assert.doesNotMatch(stylesCss, /hero-id-badge-opacity/);
   assert.doesNotMatch(stylesCss, /hero-id-badge-print/);
+  assert.doesNotMatch(stylesCss, /hero-butterfly-print/);
   assert.ok(statSync(`${projectRoot}/assets/hero-character.mp4`).size > 8 * 1024 * 1024);
   assert.ok(statSync(`${projectRoot}/assets/hero-character.mp4`).size < 20 * 1024 * 1024);
   assert.doesNotMatch(appJs, /window\.setTimeout\(preloadAllFrames,\s*600\)/);
